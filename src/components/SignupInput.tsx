@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { sendEmailVerificationCode, verifyEmailCode } from '@/api/email'; // 분리한 API 사용
+import { sendEmailVerificationCode, verifyEmailCode } from '@/app/api/email';
 
 export interface OwnerSignupFormData {
   loginId: string;
@@ -31,18 +31,18 @@ export interface CustomerSignupFormData {
 
 interface SignupInputProps {
   label: string;
-  name: keyof OwnerSignupFormData | keyof CustomerSignupFormData;
+  name: keyof OwnerSignupFormData | keyof CustomerSignupFormData | 'storeName';
   type: 'text' | 'password' | 'email';
   value: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   error?: string;
-  variant?: 'default' | 'address' | 'email' | 'emailConfirm';
+  variant?: 'default' | 'address' | 'email' | 'emailConfirm' | 'business' | 'idCheck';
   onButtonClick?: () => void;
   readOnly?: boolean;
   emailForVerification?: string;
-  /** 이메일 인증 성공 시 emailVerificationToken을 부모에게 전달 */
   onVerifySuccess?: (token: string) => void;
+  buttonDisabled?: boolean; // [추가] 버튼 비활성화 제어용 Prop
 }
 
 const SignupInput = ({
@@ -58,17 +58,21 @@ const SignupInput = ({
   readOnly,
   emailForVerification,
   onVerifySuccess,
+  buttonDisabled = false, // [추가] 기본값 false
 }: SignupInputProps) => {
-  
+
   const handleButtonClick = async () => {
+    if (buttonDisabled) return; // [추가] 비활성화 시 클릭 방지
+
     try {
       if (variant === 'email') {
-        // [리팩토링] 분리된 API 함수 사용
         await sendEmailVerificationCode(value);
         alert('인증번호가 전송되었습니다!');
-      } else if (variant === 'emailConfirm') {
+      } else if (variant === 'idCheck') { // [추가] 아이디 중복 확인 로직 연결
+        if (onButtonClick) onButtonClick();
+      }
+      else if (variant === 'emailConfirm') {
         if (emailForVerification) {
-          // [리팩토링] 분리된 API 함수 사용
           const token = await verifyEmailCode(emailForVerification, value);
           alert('이메일 인증이 완료되었습니다!');
           
@@ -76,11 +80,9 @@ const SignupInput = ({
             onVerifySuccess(token);
           }
         } else {
-          console.error('검증할 이메일 주소가 전달되지 않았습니다.');
           alert('이메일을 먼저 입력해주세요.');
         }
       } else if (onButtonClick) {
-        // 주소 찾기 등 다른 버튼 동작
         onButtonClick();
       }
     } catch (error: any) {
@@ -90,7 +92,11 @@ const SignupInput = ({
   };
 
   const hasButton =
-    variant === 'address' || variant === 'email' || variant === 'emailConfirm';
+    variant === 'address' || 
+    variant === 'email' || 
+    variant === 'emailConfirm' || 
+    variant === 'business' ||
+    variant === 'idCheck';
 
   return (
     <div className="flex flex-col w-full">
@@ -98,7 +104,6 @@ const SignupInput = ({
         {label}
       </label>
       {hasButton ? (
-        // 이메일/인증번호/주소 입력창 (버튼 포함)
         <div className="flex flex-col">
           <div className="flex flex-row gap-5">
             <input
@@ -108,29 +113,30 @@ const SignupInput = ({
               value={value}
               onChange={onChange}
               placeholder={placeholder}
-              readOnly={readOnly}
-              className="text-[14px] border border-gray-300 pl-3 rounded-[10px] w-full h-[48px] transition-all"
+              readOnly={readOnly || (buttonDisabled && variant !== 'email')} // 인증 완료되면 입력창도 잠그고 싶다면 사용 (선택사항)
+              className={`text-[14px] border border-gray-300 pl-3 rounded-[10px] w-full h-[48px] transition-all ${
+                readOnly || buttonDisabled ? 'bg-gray-100 text-gray-500' : 'bg-[var(--fill-color1)]'
+              }`}
             />
             <button
               type="button"
               onClick={handleButtonClick}
-              className="w-[68px] h-[48px] bg-[var(--fill-color1)] rounded-[10px] text-[12px] text-[#5B5B5B] shrink-0 cursor-pointer hover:bg-gray-300 active:bg-[var(--fill-color3)] transition-colors"
+              disabled={buttonDisabled} // [추가] 버튼 기능 비활성화
+              className={`w-[68px] h-[48px] rounded-[10px] text-[12px] shrink-0 transition-colors flex items-center justify-center text-center
+                ${buttonDisabled 
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-70' // [추가] 비활성화 스타일
+                  : 'bg-[var(--fill-color1)] text-[#5B5B5B] cursor-pointer hover:bg-gray-300 active:bg-[var(--fill-color3)]' // 활성화 스타일
+                }`}
             >
-              {variant === 'email' && (
-                <>
-                  인증번호
-                  <br />
-                  전송
-                </>
-              )}
-              {variant === 'emailConfirm' && '확인'}
+              {variant === 'email' && (buttonDisabled ? '전송완료' : <>인증번호<br/>전송</>)}
+              {variant === 'emailConfirm' && (buttonDisabled ? '인증됨' : '확인')}
               {variant === 'address' && '주소 찾기'}
+              {variant === 'business' && (buttonDisabled ? '인증됨' : '조회')}
             </button>
           </div>
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
       ) : (
-        // 기본 입력창 (버튼 없음)
         <div>
           <input
             id={name}

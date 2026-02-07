@@ -99,7 +99,7 @@ export const AddressModal = ({ onClose, onSelect }: AddressModalProps) => {
           />
           <button 
             onClick={onSearchMap} 
-            className="shrink-0 w-10 h-10 relative bg-[var(--main-color)] rounded-[10px] flex items-center justify-center"
+            className="shrink-0 w-10 h-10 relative bg-gray-100 rounded-[10px] flex items-center justify-center"
           >
              <Image 
                src="/assets/road_search_button.png" 

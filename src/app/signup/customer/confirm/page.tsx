@@ -5,13 +5,12 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import SignupInput from '@/components/SignupInput';
 import { AddressModal } from '@/components/AddressModal';
-import { StoreSearchModal } from '@/components/StoreSearchModal';
-import { type Store } from '@/type/Store';
 
+// [수정] 불필요한 Store 관련 타입 제거
 type UserProfileProps = {
   nickname: string;
   gender: 'male' | 'female';
-  favStoreId?: number[];
+  favStoreId?: number[]; // 백엔드 호환성을 위해 타입은 유지하되 빈 배열로 보냄
   address: string;
   latitude: number;
   longitude: number;
@@ -22,22 +21,19 @@ export default function CustomerConfirmPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  // [수정] 기본 이미지는 public/assets 경로 사용
   const [previewUrl, setPreviewUrl] = useState<string>('/assets/addProfile.png');
 
   const [profileData, setProfileData] = useState<UserProfileProps>({
     nickname: '',
     gender: 'male',
-    favStoreId: [],
+    favStoreId: [], // 빈 배열로 초기화
     address: '',
     latitude: 0,
     longitude: 0,
   });
 
-  const [favoriteStores, setFavoriteStores] = useState<(Store | null)[]>([null, null, null]);
+  // [수정] 단골 가게 관련 state(favoriteStores, Modal 등) 모두 삭제
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isStoreSearchModalOpen, setIsStoreSearchModalOpen] = useState(false);
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,6 +41,10 @@ export default function CustomerConfirmPage() {
       setProfileImageFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const handleGenderClick = (gender: 'male' | 'female') => {
+    setProfileData((prev) => ({ ...prev, gender }));
   };
 
   const handleConfirmClick = async () => {
@@ -67,7 +67,7 @@ export default function CustomerConfirmPage() {
         latitude: profileData.latitude,
         longitude: profileData.longitude,
         gender: profileData.gender === 'male' ? 'MALE' : 'FEMALE',
-        favStoreId: profileData.favStoreId,
+        favStoreId: [], // [수정] 빈 배열 전송 (단골 가게 없음)
       };
 
       formData.append('data', new Blob([JSON.stringify(jsonPayload)], { type: 'application/json' }));
@@ -75,7 +75,6 @@ export default function CustomerConfirmPage() {
         formData.append('profileImage', profileImageFile);
       }
 
-      // [수정] 환경변수 사용
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/auth/user/onboarding`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -88,7 +87,6 @@ export default function CustomerConfirmPage() {
       }
 
       alert('프로필 저장이 완료되었습니다!');
-      // TODO: 온보딩 완료 후 이동할 페이지 (예: 메인)
       router.push('/stamp'); 
 
     } catch (error: any) {
@@ -99,9 +97,6 @@ export default function CustomerConfirmPage() {
     }
   };
 
-  // ... (나머지 핸들러 함수들은 기존과 동일, 생략) ...
-  // 기존 handleAddressSelect, handleStoreSelect 등 그대로 복사해서 넣으세요.
-  
   const handleAddressSelect = (data: { address: string; x: string; y: string }) => {
     setProfileData((prev) => ({
       ...prev,
@@ -112,20 +107,8 @@ export default function CustomerConfirmPage() {
     setIsAddressModalOpen(false);
   };
 
-  const handleStoreSelect = (store: Store) => {
-    const newFavoriteStores = [...favoriteStores];
-    newFavoriteStores[selectedSlotIndex] = store;
-    setFavoriteStores(newFavoriteStores);
-    setProfileData(prev => ({
-        ...prev,
-        favStoreId: newFavoriteStores.filter((s): s is Store => s !== null).map(s => s.storeId)
-    }));
-    setIsStoreSearchModalOpen(false);
-  };
-
   return (
     <div className="flex flex-col items-center pb-24 min-h-screen bg-white">
-      {/* 상단 네비게이션 등 UI 구현 (기존 JSX 복사) */}
       <div className="flex flex-row items-center self-start mt-3 gap-4 px-6 w-full">
         <p className="font-semibold">프로필 채우기</p>
         <p className="ml-auto text-gray-400 cursor-pointer" onClick={() => router.push('/stamp')}>건너뛰기</p>
@@ -142,13 +125,32 @@ export default function CustomerConfirmPage() {
         </div>
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} className="hidden" />
 
-        {/* ... 성별 선택, 주소 입력(SignupInput), 단골 가게 등록 UI ... */}
-        {/* 기존 JSX를 붙여넣되, <SignupInput> 등에 넘기는 props 잘 확인하세요 */}
-        
+        {/* 성별 선택 */}
+        <p className="mt-[18px] font-semibold">성별</p>
+        <div className="flex flex-row mt-2.5 space-x-4 w-full">
+          <button
+            className={`flex-1 h-[48px] border rounded-lg transition-all ${
+              profileData.gender === 'male' ? 'border-blue-500 text-blue-500 font-semibold' : 'border-gray-300 text-gray-500'
+            }`}
+            onClick={() => handleGenderClick('male')}
+          >
+            남
+          </button>
+          <button
+            className={`flex-1 h-[48px] border rounded-lg transition-all ${
+              profileData.gender === 'female' ? 'border-blue-500 text-blue-500 font-semibold' : 'border-gray-300 text-gray-500'
+            }`}
+            onClick={() => handleGenderClick('female')}
+          >
+            여
+          </button>
+        </div>
+
+        {/* 주소 검색 */}
         <div className="w-full mt-6">
             <SignupInput
                 label="주소지"
-                name="address" // SignupInput props 타입과 일치해야 함 (CustomerSignupFormData 키값 중 하나여야 에러 안남. 필요시 타입 수정)
+                name="address"
                 type="text"
                 value={profileData.address}
                 readOnly={true}
@@ -158,25 +160,7 @@ export default function CustomerConfirmPage() {
             />
         </div>
 
-        {/* 단골 가게 목록 UI */}
-        <p className="mt-8 font-semibold">단골 가게 등록</p>
-        <div className="w-full mt-2.5 space-y-3">
-            {favoriteStores.map((store, index) => (
-                <div key={index} className="w-full h-[48px] border border-gray-300 rounded-lg p-4 flex items-center justify-between" onClick={() => { if(!store) { setSelectedSlotIndex(index); setIsStoreSearchModalOpen(true); } }}>
-                    {store ? (
-                        <>
-                            <div>
-                                <p className="font-semibold text-sm">{store.storeName}</p>
-                                <p className="text-gray-500 text-xs">{store.address}</p>
-                            </div>
-                            <button onClick={(e) => { e.stopPropagation(); /* 삭제 로직 */ }} className="text-gray-400">...</button>
-                        </>
-                    ) : (
-                        <span className="w-full text-center text-gray-400 text-2xl">+</span>
-                    )}
-                </div>
-            ))}
-        </div>
+        {/* [수정] 단골 가게 등록 UI 제거됨 */}
 
         <button className="w-full h-[56px] bg-[var(--main-color)] text-white font-bold rounded-[40px] mt-12" onClick={handleConfirmClick} disabled={isSubmitting}>
           {isSubmitting ? '저장 중...' : '확인'}
@@ -184,7 +168,6 @@ export default function CustomerConfirmPage() {
       </div>
 
       {isAddressModalOpen && <AddressModal onClose={() => setIsAddressModalOpen(false)} onSelect={handleAddressSelect} />}
-      {isStoreSearchModalOpen && <StoreSearchModal onClose={() => setIsStoreSearchModalOpen(false)} onSelect={handleStoreSelect} />}
     </div>
   );
 }
