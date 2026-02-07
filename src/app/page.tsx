@@ -1,65 +1,161 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { loginUser, getKakaoAuthUrl } from '@/api/auth';
+
+export default function HomePage() {
+  const router = useRouter();
+  const [loginData, setLoginData] = useState({
+    loginId: '',
+    password: '',
+  });
+
+  // 초기화 로직
+  useEffect(() => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // 일반 로그인 핸들러
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const result = await loginUser(loginData);
+
+      if (result.accessToken) {
+        localStorage.setItem('accessToken', result.accessToken);
+        localStorage.setItem('refreshToken', result.refreshToken);
+
+        // 라우팅 분기 로직
+        if (result.userOnboarded) {
+          router.push('/stamp');
+        } else if (result.managerOnboarded) {
+          router.push('/owner/dashboard');
+        } else if (result.userType === 'USER') {
+          router.push('/signup/customer/confirm'); // 경로 Next.js 구조에 맞게 변경됨
+        } else if (result.userType === 'MANAGER') {
+          router.push('/shop-profile'); // TODO: 이것도 나중에 경로 확인 필요
+        } else {
+          alert('로그인 정보에 오류가 있습니다.');
+        }
+      }
+    } catch (error: any) {
+      console.error('로그인 오류:', error);
+      alert(error.message || '로그인 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 카카오 로그인 핸들러
+  const handleKakaoLogin = async () => {
+    try {
+      const frontendRedirectUri = `${window.location.origin}/oauth/kakao/callback`;
+      const kakaoAuthUrl = await getKakaoAuthUrl(frontendRedirectUri);
+
+      if (!kakaoAuthUrl) {
+        throw new Error('카카오 인증 URL이 없습니다.');
+      }
+
+      sessionStorage.setItem('kakaoRedirectUri', frontendRedirectUri);
+      window.location.href = kakaoAuthUrl;
+    } catch (error) {
+      console.error('카카오 로그인 오류:', error);
+      alert('카카오 로그인 연결에 실패했습니다.');
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col pt-20 items-center min-h-screen bg-white">
+      {/* 로고 영역 */}
+      <div className="flex flex-col w-[200px] h-[300px] items-center">
+        {/* Next.js Image 컴포넌트 사용 */}
+        <div className="relative w-[160px] h-[160px] rounded-[50px] overflow-hidden bg-gray-300">
+          <Image
+            src="/assets/main_logo.png"
+            alt="Main Logo"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        <p className="mt-5 font-bold text-[28px] text-[var(--main-color)]">
+          당고
+        </p>
+        <div className="flex flex-col items-center">
+          <p className="text-center mt-1 text-[var(--fill-color6)] text-[12px]">
+            소상공인과 고객을 연결하는
+            <br />
+            스탬프 기반 리워드 플랫폼
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+      </div>
+
+      {/* 로그인 폼 */}
+      <form className="flex flex-col w-[320px] mt-20" onSubmit={handleLogin}>
+        <input
+          className="bg-[#F3F3F3] rounded-[40px] h-[50px] pl-5 mb-2 text-black"
+          placeholder="아이디"
+          value={loginData.loginId}
+          name="loginId"
+          onChange={handleChange}
+        />
+        <input
+          className="bg-[#F3F3F3] rounded-[40px] h-[50px] pl-5 mb-3 text-black"
+          placeholder="비밀번호"
+          type="password"
+          value={loginData.password}
+          name="password"
+          onChange={handleChange}
+        />
+        <button
+          type="submit"
+          className="bg-[var(--main-color)] text-white rounded-[40px] h-[50px] font-bold cursor-pointer hover:opacity-90 transition-opacity"
+        >
+          로그인
+        </button>
+      </form>
+
+      {/* 소셜 로그인 */}
+      <div className="flex flex-row justify-center w-[300px] mt-7 space-x-5 text-sm text-[var(--fill-color7)]">
+        <div
+          className="flex flex-col items-center justify-center cursor-pointer gap-3"
+          onClick={handleKakaoLogin}
+        >
+          <div className="relative w-[48px] h-[48px] rounded-full overflow-hidden">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/assets/kakao_logo.png"
+              alt="Kakao Logo"
+              fill
+              className="object-cover"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+          <p className="cursor-pointer text-[10px]">카카오톡으로 로그인</p>
         </div>
-      </main>
+      </div>
+
+      {/* 하단 링크 */}
+      <div className="flex flex-row justify-between w-[280px] mt-10 text-sm text-[var(--fill-color6)]">
+        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find-id')}>
+          아이디 찾기
+        </p>
+        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find-password')}>
+          비밀번호 찾기
+        </p>
+        <p className="cursor-pointer hover:underline" onClick={() => router.push('/signup')}>
+          회원가입
+        </p>
+      </div>
     </div>
   );
 }
