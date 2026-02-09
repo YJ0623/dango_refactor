@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -10,7 +11,7 @@ import {
   fetchStoreName,
   fetchTotals,
   fetchGenderStats,
-} from '@/app/lib/api/owner/stats';
+} from '@/app/lib/stats';
 
 // 날짜 포맷팅 유틸 (YYYY-MM-DD)
 const getTodayDate = () => {
@@ -21,7 +22,7 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-export const Dashboard = () => {
+export default function Dashboard() {
   const router = useRouter();
 
   // 1. 적립 통계 탭
@@ -30,7 +31,6 @@ export const Dashboard = () => {
   // 2. 등록 고객 수 통계 탭
   const [customerActiveTab, setCustomerActiveTab] = useState<'weekly' | 'monthly'>('weekly');
 
-  // ... (API Query 부분은 그대로 유지) ...
   const { data: storeName } = useQuery({ queryKey: ['storeName'], queryFn: fetchStoreName });
 
   const { data: todayStats } = useQuery({

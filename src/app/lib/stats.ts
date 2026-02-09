@@ -78,7 +78,8 @@ export const fetchTotals = async (
 
 export const fetchStoreName = async (): Promise<string | null> => {
   const API_URI = process.env.NEXT_PUBLIC_API_URI;
-  const token = localStorage.getItem('accessToken');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  
   if (!token) return null;
 
   try {
