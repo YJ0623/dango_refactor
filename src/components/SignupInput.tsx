@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { sendEmailVerificationCode, verifyEmailCode } from '@/app/api/email';
+import { sendEmailVerificationCode, verifyEmailCode } from '@/app/lib/api/email';
 
 export interface OwnerSignupFormData {
   loginId: string;

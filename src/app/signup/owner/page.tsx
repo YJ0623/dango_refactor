@@ -1,12 +1,23 @@
-'use client';
+'use client' // ⭐ 필수! (useState, useEffect 사용)
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import BackButton from '@/components/BackButton';
-import SignupInput, { type OwnerSignupFormData } from '@/components/SignupInput';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import BackButton from '@/components/BackButton'
+import SignupInput, {
+  type OwnerSignupFormData,
+} from '@/components/SignupInput'
+import { AddressModal } from '@/components/AddressModal'
 
-export default function OwnerSignUpPage() {
-  const router = useRouter();
+export default function OwnerSignupPage() {
+  const router = useRouter()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [errors, setErrors] = useState<Partial<Record<keyof OwnerSignupFormData, string>>>({})
+
+  useEffect(() => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+  }, [])
+  
   const [formData, setFormData] = useState<OwnerSignupFormData>({
     loginId: '',
     password: '',
@@ -18,146 +29,236 @@ export default function OwnerSignUpPage() {
     latitude: 0,
     longitude: 0,
     emailVerificationToken: '',
-  });
+  })
 
-  const [isBusinessVerified, setIsBusinessVerified] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof OwnerSignupFormData, string>> = {}
+    let isValid = true
 
-  // 입력 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    if (name === 'businessNumber') setIsBusinessVerified(false);
-    if (name === 'email') setFormData(prev => ({ ...prev, emailVerificationToken: '' }));
-  };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  // 사업자 조회 및 이메일 인증 핸들러 (기존과 동일)
-  const handleBusinessCheck = async () => {
-    if (!formData.businessNumber) return alert('사업자 번호를 입력해주세요.');
-    try {
-      const response = await fetch('/api/external/nts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessNumber: formData.businessNumber }),
-      });
-      const result = await response.json();
-      if (result.valid) {
-        alert('유효한 사업자 번호입니다.');
-        setIsBusinessVerified(true);
-      } else {
-        alert('유효하지 않거나 휴/폐업된 사업자 번호입니다.');
-        setIsBusinessVerified(false);
-      }
-    } catch (error) {
-      alert('사업자 조회 중 오류가 발생했습니다.');
+    if (!formData.loginId) {
+      newErrors.loginId = '필수 입력 사항입니다.'
+      isValid = false
     }
-  };
+
+    if (!formData.email) {
+      newErrors.email = '필수 입력 사항입니다.'
+      isValid = false
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = '올바른 이메일 형식이 아닙니다.'
+      isValid = false
+    }
+
+    if (!formData.password) {
+      newErrors.password = '필수 입력 사항입니다.'
+      isValid = false
+    } else if (formData.password.length < 8) {
+      newErrors.password = '비밀번호는 8자 이상이어야 합니다.'
+      isValid = false
+    }
+
+    if (formData.password !== formData.passwordConfirm) {
+      newErrors.passwordConfirm = '비밀번호가 일치하지 않습니다.'
+      isValid = false
+    }
+
+    if (!formData.emailVerificationToken) {
+      newErrors.emailConfirm = '이메일 인증을 완료해주세요.'
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  const handleOwnerData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target as HTMLInputElement
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
 
   const handleVerificationSuccess = (token: string) => {
-    setFormData(prev => ({ ...prev, emailVerificationToken: token }));
-  };
+    setFormData((prev) => ({
+      ...prev,
+      emailVerificationToken: token,
+    }))
+    setErrors((prev) => ({ ...prev, emailConfirm: undefined }))
+    console.log('토큰 저장 완료:', token)
+  }
 
-  // [핵심 변경] 다음 버튼 클릭 시 -> "회원가입 + 로그인" 수행
-  const handleNext = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // 유효성 검사
-    if (!formData.loginId || !formData.password || !formData.email) return alert('필수 정보를 입력해주세요.');
-    if (formData.password !== formData.passwordConfirm) return alert('비밀번호가 일치하지 않습니다.');
-    if (!isBusinessVerified) return alert('사업자 번호 조회를 완료해주세요.');
-    if (!formData.emailVerificationToken) return alert('이메일 인증을 완료해주세요.');
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
 
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!validateForm()) {
+      console.log(errors, '폼 유효성 검사 실패')
+      return
+    }
 
     try {
-      // 1. 회원가입 요청
-      const joinResponse = await fetch(`${apiUrl}/v1/auth/manager/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          loginId: formData.loginId,
-          password: formData.password,
-          email: formData.email,
-          name: formData.loginId, // 이름 필드 대체
-          role: 'MANAGER',
-          businessNumber: formData.businessNumber
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/manager/join`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            loginId: formData.loginId,
+            password: formData.password,
+            passwordConfirm: formData.passwordConfirm,
+            email: formData.email,
+            businessNum: formData.businessNumber,
+            address: formData.location,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            emailVerificationToken: formData.emailVerificationToken,
+          }),
+        }
+      )
 
-      if (!joinResponse.ok && joinResponse.status !== 409) {
-        const errorText = await joinResponse.text();
-        throw new Error(errorText);
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('서버 에러 상세:', errorData)
+        throw new Error(
+          errorData.message ||
+            '회원가입 요청이 거절되었습니다. 아이디나 이메일 중복을 확인해주세요.'
+        )
       }
 
-      // 2. 로그인 요청 (토큰 발급)
-      const loginResponse = await fetch(`${apiUrl}/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          loginId: formData.loginId,
-          password: formData.password
-        }),
-      });
-
-      if (!loginResponse.ok) throw new Error('회원가입 후 로그인 실패');
-
-      const loginResult = await loginResponse.json();
-      const accessToken = loginResult.data?.accessToken || loginResult.accessToken;
-
-      if (!accessToken) throw new Error('토큰을 받아오지 못했습니다.');
-
-      // 3. 토큰 저장 및 페이지 이동
-      localStorage.setItem('accessToken', accessToken);
-      alert('기본 정보 등록이 완료되었습니다. 매장 정보를 입력해주세요.');
-      router.push('/signup/owner/profile'); // 2단계 페이지로 이동
-
+      alert('가입이 완료되었습니다!')
+      router.push('/signup/owner/profile')
     } catch (error: any) {
-      console.error('Error:', error);
-      alert(`오류 발생: ${error.message}`);
-    } finally {
-      setIsSubmitting(false);
+      console.error('회원가입 오류:', error)
+      alert(error.message)
     }
-  };
+  }
 
-  const isEmailVerified = !!formData.emailVerificationToken;
+  const handleAddressSearch = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleAddressSelect = (data: {
+    address: string
+    x: string
+    y: string
+  }) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      location: data.address,
+      longitude: parseFloat(data.x),
+      latitude: parseFloat(data.y),
+    }))
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      location: undefined,
+    }))
+    setIsModalOpen(false)
+  }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-white pb-10">
-      <div className="flex flex-row items-center self-start mt-3 gap-4 px-6 w-full">
+    <div className="flex flex-col items-center h-screen">
+      <div className="w-full flex flex-row items-center self-start mt-3 gap-4 px-6">
         <BackButton />
-        <p className="font-medium">사장님 회원가입</p>
+        <p>점주 회원가입</p>
       </div>
-      <div className="w-full h-px mt-3 bg-gray-200" />
+      <div className="w-screen h-px mt-3 bg-gray-200" />
 
-      <form onSubmit={handleNext} className="flex flex-col items-center w-full max-w-[332px] px-4 mt-10">
-        <div className="w-full gap-2.5 flex flex-col">
-            <SignupInput label="아이디" name="loginId" type="text" value={formData.loginId} onChange={handleInputChange} />
-            <SignupInput label="비밀번호" name="password" type="password" value={formData.password} onChange={handleInputChange} placeholder="10-20자의 영문, 숫자 포함" />
-            <SignupInput label="비밀번호 확인" name="passwordConfirm" type="password" value={formData.passwordConfirm} onChange={handleInputChange} />
-        </div>
+      {/* 입력 폼 */}
+      <div className="flex items-start flex-col mt-10 gap-4 w-[332px]">
+        {/* 1. 이메일 입력창 */}
+        <SignupInput
+          label="이메일"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleOwnerData}
+          error={errors.email}
+          variant="email"
+          placeholder="이메일 주소 입력"
+        />
+        {/* 2. 인증번호 입력창 */}
+        <SignupInput
+          label=""
+          name="emailConfirm"
+          type="text"
+          value={formData.emailConfirm}
+          onChange={handleOwnerData}
+          error={errors.emailConfirm}
+          variant="emailConfirm"
+          placeholder="인증번호"
+          emailForVerification={formData.email}
+          onVerifySuccess={handleVerificationSuccess}
+        />
+        <SignupInput
+          label="아이디"
+          name="loginId"
+          type="text"
+          value={formData.loginId}
+          onChange={handleOwnerData}
+          error={errors.loginId}
+        />
+        <SignupInput
+          label="비밀번호"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleOwnerData}
+          error={errors.password}
+        />
+        <SignupInput
+          label="비밀번호 확인"
+          name="passwordConfirm"
+          type="password"
+          value={formData.passwordConfirm}
+          onChange={handleOwnerData}
+          error={errors.passwordConfirm}
+        />
+        <SignupInput
+          label="사업자등록번호"
+          name="businessNumber"
+          type="text"
+          placeholder="꼭 하이픈('-')을 빼고 입력해주세요."
+          value={formData.businessNumber}
+          onChange={handleOwnerData}
+          error={errors.businessNumber}
+        />
+        <SignupInput
+          label="가게 주소"
+          name="location"
+          type="text"
+          value={formData.location}
+          onChange={handleOwnerData}
+          readOnly={true}
+          error={errors.location}
+          variant="address"
+          onButtonClick={handleAddressSearch}
+          placeholder="지번, 도로명, 건물명으로 검색"
+        />
+      </div>
 
-        <div className="w-full mt-4 gap-2.5 flex flex-col">
-            <SignupInput label="이메일" name="email" type="email" value={formData.email} onChange={handleInputChange} variant="email" buttonDisabled={isEmailVerified} />
-            <SignupInput label="" name="emailConfirm" type="text" value={formData.emailConfirm} onChange={handleInputChange} variant="emailConfirm" emailForVerification={formData.email} onVerifySuccess={handleVerificationSuccess} placeholder="인증번호 입력" buttonDisabled={isEmailVerified} />
-        </div>
-
-        <div className="w-full mt-4">
-            <SignupInput label="사업자 등록번호" name="businessNumber" type="text" value={formData.businessNumber} onChange={handleInputChange} variant="business" onButtonClick={handleBusinessCheck} placeholder="- 없이 숫자만 입력" buttonDisabled={isBusinessVerified} />
-            {isBusinessVerified && <p className="text-blue-500 text-xs mt-1">✅ 인증되었습니다.</p>}
-        </div>
-
+      <div className="flex justify-center mt-6">
         <button
-            type="submit"
-            className="mt-12 bg-[var(--main-color)] text-white rounded-[40px] w-full h-[50px] font-bold disabled:opacity-50"
-            disabled={isSubmitting}
+          className="bg-(--main-color) text-white rounded-[40px] w-[316px] h-[50px] font-bold mb-10"
+          onClick={handleSubmit}
         >
-            {isSubmitting ? '처리 중...' : '다음'}
+          가입하기
         </button>
-      </form>
+      </div>
+
+      {isModalOpen && (
+        <AddressModal
+          onClose={handleCloseModal}
+          onSelect={handleAddressSelect}
+        />
+      )}
     </div>
-  );
+  )
 }

@@ -6,11 +6,10 @@ import Image from 'next/image';
 import SignupInput from '@/components/SignupInput';
 import { AddressModal } from '@/components/AddressModal';
 
-// [수정] 불필요한 Store 관련 타입 제거
 type UserProfileProps = {
   nickname: string;
   gender: 'male' | 'female';
-  favStoreId?: number[]; // 백엔드 호환성을 위해 타입은 유지하되 빈 배열로 보냄
+  favStoreId?: number[];
   address: string;
   latitude: number;
   longitude: number;
@@ -26,13 +25,12 @@ export default function CustomerConfirmPage() {
   const [profileData, setProfileData] = useState<UserProfileProps>({
     nickname: '',
     gender: 'male',
-    favStoreId: [], // 빈 배열로 초기화
+    favStoreId: [],
     address: '',
     latitude: 0,
     longitude: 0,
   });
 
-  // [수정] 단골 가게 관련 state(favoriteStores, Modal 등) 모두 삭제
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +65,7 @@ export default function CustomerConfirmPage() {
         latitude: profileData.latitude,
         longitude: profileData.longitude,
         gender: profileData.gender === 'male' ? 'MALE' : 'FEMALE',
-        favStoreId: [], // [수정] 빈 배열 전송 (단골 가게 없음)
+        favStoreId: [],
       };
 
       formData.append('data', new Blob([JSON.stringify(jsonPayload)], { type: 'application/json' }));

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { loginUser, getKakaoAuthUrl } from '@/app/api/auth';
+import { loginUser, getKakaoAuthUrl } from '@/app/lib/api/auth';
 
 export default function HomePage() {
   const router = useRouter();
@@ -43,9 +43,9 @@ export default function HomePage() {
         } else if (result.managerOnboarded) {
           router.push('/owner/dashboard');
         } else if (result.userType === 'USER') {
-          router.push('/signup/customer/confirm'); // 경로 Next.js 구조에 맞게 변경됨
+          router.push('/signup/customer/confirm');
         } else if (result.userType === 'MANAGER') {
-          router.push('/shop-profile'); // TODO: 이것도 나중에 경로 확인 필요
+          router.push('/signup/owner/profile');
         } else {
           alert('로그인 정보에 오류가 있습니다.');
         }
