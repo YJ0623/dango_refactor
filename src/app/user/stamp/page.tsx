@@ -225,7 +225,7 @@ const StampPage = () => {
         {/* 버튼들 */}
         <div className="grid grid-cols-2 gap-4 mb-10">
           <button
-            onClick={() => router.push('/user/couponbox')}
+            onClick={() => router.push('/user/coupon/box')}
             className="bg-white p-4 rounded-2xl shadow-sm flex flex-col items-center justify-center space-y-2 hover:bg-gray-50 transition"
           >
             <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">

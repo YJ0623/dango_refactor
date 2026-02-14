@@ -443,45 +443,6 @@ const ProfileSetting = () => {
               </button>
             </div>
           </div>
-
-          {/* 단골 가게 */}
-          <div className="mb-8">
-            <label className="block text-xs font-medium text-gray-500 mb-2">
-              단골 가게 등록
-            </label>
-            <div className="space-y-2">
-              {favoriteStores.map((store) => (
-                <div
-                  key={store.storeId}
-                  className="flex items-center justify-between w-full p-4 rounded-lg border border-gray-200 bg-white hover:border-orange-300 transition-colors cursor-pointer"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-900">
-                      {store.storeName}
-                    </span>
-                    <span className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[200px]">
-                      {store.storeAddress}
-                    </span>
-                  </div>
-                  <button className="text-gray-300 hover:text-gray-500">
-                    <MoreVertical size={16} />
-                  </button>
-                </div>
-              ))}
-
-              {[...Array(Math.max(0, 3 - favoriteStores.length))].map(
-                (_, index) => (
-                  <button
-                    key={`add-btn-${index}`}
-                    onClick={() => router.push('/store/regularshop')}
-                    className="w-full py-4 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-200 hover:text-orange-500 hover:border-orange-300 transition-all"
-                  >
-                    <Plus size={20} strokeWidth={1.5} />
-                  </button>
-                )
-              )}
-            </div>
-          </div>
         </main>
 
         <div className="absolute bottom-0 left-0 right-0 p-5 bg-white bg-opacity-90 backdrop-blur-sm">

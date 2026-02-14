@@ -14,17 +14,14 @@ export default function Setting() {
   // 2. 로그아웃 핸들러 함수
   const handleLogout = async () => {
     try {
-      // 저장된 토큰 가져오기 (localStorage에 'accessToken'으로 저장되어 있다고 가정)
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 토큰이 필요한 경우 헤더에 추가 (필요 없다면 제거하세요)
           Authorization: token ? `Bearer ${token}` : '',
         },
-        // 만약 정말로 body에 특정 데이터를 보내야 한다면 여기에 body: JSON.stringify({...}) 추가
       });
 
       if (response.ok) {

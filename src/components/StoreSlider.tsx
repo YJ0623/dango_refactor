@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export interface Store {
   id: number;
@@ -25,7 +26,7 @@ const StoreCard: React.FC<{
   const handleNavigate = (e: React.MouseEvent) => {
     e.stopPropagation();
     router.push(`/store/info/${store.id}`);
-  }; // store.category 추가 요망
+  };
 
   const formatDistance = (meters?: number) => {
     if (typeof meters !== 'number') return '';
@@ -33,34 +34,6 @@ const StoreCard: React.FC<{
       return `${(meters / 1000).toFixed(1)}km`;
     }
     return `${Math.floor(meters)}m`;
-  };
-
-  // --- [핵심] 별점 렌더링 함수 ---
-  const renderStars = (rating: number) => {
-    const stars = [];
-    // 5개 별 생성
-    for (let i = 1; i <= 5; i++) {
-      // 현재 점수보다 i가 작거나 같으면 채워진 별, 아니면 빈 별
-      // (소수점 처리가 필요하면 Math.round(rating) 등을 사용)
-      const isActive = i <= Math.round(rating);
-
-      stars.push(
-        <svg
-          key={i}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className={`w-4 h-4 ${isActive ? 'text-[#FF6B00]' : 'text-gray-200'}`} // 주황색 / 회색
-        >
-          <path
-            fillRule="evenodd"
-            d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-            clipRule="evenodd"
-          />
-        </svg>
-      );
-    }
-    return stars;
   };
 
   return (
@@ -118,10 +91,12 @@ const StoreCard: React.FC<{
         {/* 메인 이미지 */}
         <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden relative">
           {store.image ? (
-            <img
+            <Image
               src={store.image}
               alt={store.name}
               className="w-full h-full object-cover"
+              width={100}
+              height={100}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
@@ -135,10 +110,12 @@ const StoreCard: React.FC<{
         <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden hidden sm:block">
           {/* 실제 데이터가 1개뿐이라도 UI 균형을 위해 표시하고 싶다면 아래 주석 해제 */}
           {store.image ? (
-            <img
+            <Image
               src={store.image}
               alt="sub"
               className="w-full h-full object-cover opacity-80"
+              width={100}
+              height={100}
             />
           ) : (
             <div className="w-full h-full bg-gray-50" />
@@ -148,17 +125,9 @@ const StoreCard: React.FC<{
 
       {/* 4. 하단 평점 영역 (경계선 추가) */}
       <div className="mt-4 pt-3 border-t border-gray-100 flex items-center">
-        {/* 평점 숫자 */}
-        <span className="text-[16px] font-bold text-[#333] mr-2">
-          {store.rating.toFixed(1)}
-        </span>
-
-        {/* 별 아이콘들 */}
-        <div className="flex gap-0.5">{renderStars(store.rating)}</div>
-
         {/* 리뷰 수 */}
         <span className="text-[13px] text-gray-400 ml-2">
-          ({store.reviewCount})
+          {store.reviewCount > 0 ? `리뷰 ${store.reviewCount}개` : '리뷰 없음'}
         </span>
       </div>
     </div>

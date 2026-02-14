@@ -387,9 +387,11 @@ const ReviewItem = ({ data }: { data: Review }) => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Image
             key={star}
-            src={star <= data.rate ? '/assets/filledstar.svg' : '/assets/emptystar.svg'}
+            src={star <= data.rate ? '/assets/star_full_icon.png' : '/assets/emptystar.svg'}
             alt="star"
             className="w-[14px] h-[14px]"
+            width={14}
+            height={14}
           />
         ))}
       </div>

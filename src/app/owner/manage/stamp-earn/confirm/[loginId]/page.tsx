@@ -13,6 +13,8 @@ export default function StampEarnConfirmWithId() {
   const router = useRouter();
   const apiUri = process.env.NEXT_PUBLIC_API_URL; 
 
+  const decodedLoginId = loginId ? decodeURIComponent(loginId) : '';
+
   const [stampCount, setStampCount] = useState(1);
 
   // 1. 가게 이름 조회 (API 호출 시 storeName이 필요하므로 유지)
@@ -25,7 +27,7 @@ export default function StampEarnConfirmWithId() {
   const handleDecrease = () => setStampCount((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleConfirm = async () => {
-    if (!storeName || !loginId) {
+    if (!storeName || !decodedLoginId) {
       alert("가게 정보나 회원 ID가 올바르지 않습니다.");
       return;
     }
@@ -34,7 +36,7 @@ export default function StampEarnConfirmWithId() {
       const baseUrl = `${apiUri}/v1/manager/addByNum`;
       
       // Query String 수동 생성 (명시적으로 확인 가능)
-      const queryParams = `?storeName=${encodeURIComponent(storeName)}&loginId=${encodeURIComponent(loginId)}&stampCount=${stampCount}`;
+      const queryParams = `?storeName=${encodeURIComponent(storeName)}&loginId=${encodeURIComponent(decodedLoginId)}&stampCount=${stampCount}`;
       const fullUrl = baseUrl + queryParams;
 
       // Request Body는 빈 객체 {} 로 설정
@@ -49,7 +51,7 @@ export default function StampEarnConfirmWithId() {
       );
 
       // 성공 시 알림 (닉네임 없이 아이디로 안내)
-      alert(`${loginId}님에게 스탬프 ${stampCount}개가 적립되었습니다.`);
+      alert(`${decodedLoginId}님에게 스탬프 ${stampCount}개가 적립되었습니다.`);
       router.push('/owner/manage'); 
     } catch (error) {
       console.error('적립 실패:', error);

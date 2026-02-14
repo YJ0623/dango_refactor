@@ -108,7 +108,7 @@ export default function StoreInfoReview({ storeId, reviewAvailable }: StoreInfoR
 
   // 페이지 이동
   const handleGoToReview = () => {
-    router.push(`/store/info/${storeId}/review`);
+    router.push(`/store/info/${storeId}/review/write`);
   };
 
   // 날짜 포맷 헬퍼
@@ -197,7 +197,7 @@ export default function StoreInfoReview({ storeId, reviewAvailable }: StoreInfoR
                         </span>
                         {/* 레벨 뱃지 (API에 있다면 추가) */}
                         <span className="text-[10px] text-[#999] bg-[#f0f0f0] px-1.5 py-0.5 rounded">
-                          Lv.5
+                          {review.representativeBadgeName || 'Lv.1'}
                         </span>
                       </div>
                       {/* 칭호 뱃지 예시 */}

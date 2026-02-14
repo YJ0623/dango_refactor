@@ -7,10 +7,15 @@ export interface ChartItemDto {
 }
 
 export interface StatsDataDto {
-  type: 'weekly' | 'monthly';
-  totalOrAvgCount: number;
+  type: 'daily' | 'weekly' | 'monthly' | 'weekly_customer' | 'monthly_customer' | string;
+  
   periodText: string;
   chartData: ChartItemDto[];
+  
+  totalOrAvgCount?: number;
+  
+  avgCount?: number;
+  total?: number;
 }
 
 export interface StatsResponse {
@@ -18,6 +23,7 @@ export interface StatsResponse {
   code: number;
   message: string;
   data: StatsDataDto;
+
 }
 
 // 2. API 호출 함수

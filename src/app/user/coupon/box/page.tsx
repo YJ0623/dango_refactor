@@ -18,7 +18,7 @@ interface Coupon {
 // 환경변수가 없으면 로컬 주소 사용
 const apiUri = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-const CouponBox: React.FC = () => {
+export default function CouponBox() {
   const router = useRouter();
 
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -183,5 +183,3 @@ const CouponBox: React.FC = () => {
     </div>
   );
 };
-
-export default CouponBox;

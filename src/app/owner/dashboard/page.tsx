@@ -75,7 +75,10 @@ export default function Dashboard() {
   // ----------------------------------------------------
   const todayCount = todayStats?.data?.totalOrAvgCount ?? 0;
 
-  const currentCount = currentStats?.data?.totalOrAvgCount ?? 0;
+  const currentCount = 
+    currentStats?.data?.totalOrAvgCount ?? 
+    currentStats?.data?.avgCount ?? 
+    0;
   const currentDateText = currentStats?.data?.periodText ?? '';
 
   const customerCount = customerStats?.data?.totalOrAvgCount ?? 0;
@@ -131,7 +134,7 @@ export default function Dashboard() {
         {/* --- [Section 2] 적립 통계 카드 --- */}
         <div className="w-full h-[170px] flex flex-col p-5 bg-(--fill-color1) rounded-[20px] shadow-sm relative">
           <div className="flex flex-row justify-between items-start">
-            <p className="text-[16px] text-(--fill-color7) font-bold">적립 통계</p>
+            <p className="text-[16px] text-(--fill-color7) font-bold">스탬프 적립 수 통계</p>
             <div className="flex flex-row gap-1 bg-white p-1 rounded-full shadow-sm">
               {(['daily', 'weekly', 'monthly'] as const).map((tab) => (
                 <button
@@ -170,7 +173,7 @@ export default function Dashboard() {
           />
           </div>
         </div>
-
+        <p className='text-[#5B5B5B] text-[12px] ml-5'>* 주간/월간 평균은 1보다 작을 경우 0으로 표시됩니다.</p>
         <p className="mt-10 text-[18px] text-(--main-color) font-semibold">단골 현황</p>
 
         {/* --- [Section 3] 등록 고객 수 통계 카드 --- */}

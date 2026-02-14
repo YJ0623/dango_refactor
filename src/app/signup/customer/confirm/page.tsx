@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import SignupInput from '@/components/SignupInput';
-import { AddressModal } from '@/components/AddressModal';
+import AddressModal from '@/components/AddressModal';
 
 type UserProfileProps = {
   nickname: string;
@@ -157,8 +157,6 @@ export default function CustomerConfirmPage() {
                 placeholder="지번, 도로명으로 검색"
             />
         </div>
-
-        {/* [수정] 단골 가게 등록 UI 제거됨 */}
 
         <button className="w-full h-[56px] bg-[var(--main-color)] text-white font-bold rounded-[40px] mt-12" onClick={handleConfirmClick} disabled={isSubmitting}>
           {isSubmitting ? '저장 중...' : '확인'}
