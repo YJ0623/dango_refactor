@@ -22,7 +22,7 @@ export interface StatsResponse {
 
 // 2. API 호출 함수
 export const fetchDailyStats = async (storeName: string) => {
-  const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const apiUri = process.env.NEXT_PUBLIC_API_URL;
 
   const { data } = await axios.get<StatsResponse>(
     `${apiUri}/v1/manager/stamps/statics/daily`,
@@ -41,7 +41,7 @@ export const fetchStats = async (
   storeName: string,
   type: 'weekly' | 'monthly'
 ) => {
-  const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const apiUri = process.env.NEXT_PUBLIC_API_URL;
 
   const { data } = await axios.get<StatsResponse>(
     `${apiUri}/v1/manager/stamps/statics`,
@@ -61,7 +61,7 @@ export const fetchTotals = async (
   storeName: string,
   type: 'weekly' | 'monthly'
 ) => {
-  const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const apiUri = process.env.NEXT_PUBLIC_API_URL;
 
   const { data } = await axios.get<StatsResponse>(
     `${apiUri}/v1/manager/customers/statics`,
@@ -77,7 +77,7 @@ export const fetchTotals = async (
 };
 
 export const fetchStoreName = async (): Promise<string | null> => {
-  const API_URI = process.env.NEXT_PUBLIC_API_URI;
+  const API_URI = process.env.NEXT_PUBLIC_API_URL;
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   
   if (!token) return null;
@@ -102,7 +102,7 @@ export const fetchStoreName = async (): Promise<string | null> => {
 };
 
 export const fetchGenderStats = async (storeName: string, baseDate: string) => {
-  const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const apiUri = process.env.NEXT_PUBLIC_API_URL;
   const response = await axios.get(`${apiUri}/v1/manager/gender/weekly`, {
     params: {
       storeName,

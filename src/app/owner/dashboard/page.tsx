@@ -11,7 +11,7 @@ import {
   fetchStoreName,
   fetchTotals,
   fetchGenderStats,
-} from '@/app/lib/stats';
+} from '@/lib/api/stats';
 
 // 날짜 포맷팅 유틸 (YYYY-MM-DD)
 const getTodayDate = () => {

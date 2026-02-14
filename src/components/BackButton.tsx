@@ -30,7 +30,7 @@ export default function BackButton({ className, onClick }: BackButtonProps) {
         alt="뒤로가기"
         width={12}
         height={12}
-        className="object-contain"
+        className="object-contain h-auto"
       />
     </button>
   );

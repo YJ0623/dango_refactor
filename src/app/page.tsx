@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { loginUser, getKakaoAuthUrl } from '@/app/lib/api/auth';
+import { loginUser, getKakaoAuthUrl } from '@/lib/api/auth';
 
 export default function HomePage() {
   const router = useRouter();
@@ -39,7 +39,7 @@ export default function HomePage() {
 
         // 라우팅 분기 로직
         if (result.userOnboarded) {
-          router.push('/stamp');
+          router.push('/user/stamp');
         } else if (result.managerOnboarded) {
           router.push('/owner/dashboard');
         } else if (result.userType === 'USER') {
@@ -146,10 +146,10 @@ export default function HomePage() {
 
       {/* 하단 링크 */}
       <div className="flex flex-row justify-between w-[280px] mt-10 text-sm text-[var(--fill-color6)]">
-        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find-id')}>
+        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find/id')}>
           아이디 찾기
         </p>
-        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find-password')}>
+        <p className="cursor-pointer hover:underline" onClick={() => router.push('/find/password')}>
           비밀번호 찾기
         </p>
         <p className="cursor-pointer hover:underline" onClick={() => router.push('/signup')}>

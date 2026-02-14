@@ -26,7 +26,7 @@ type AddressModalProps = {
   onSelect: (data: { address: string; x: string; y: string }) => void;
 };
 
-export const AddressModal = ({ onClose, onSelect }: AddressModalProps) => {
+export default function AddressModal({ onClose, onSelect }: AddressModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<KakaoAddressDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);

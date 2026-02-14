@@ -14,8 +14,10 @@ export default function CustomerSignUpPage() {
     localStorage.removeItem('refreshToken');
   }, []);
 
-  const [errors, setErrors] = useState<Partial<Record<keyof CustomerSignupFormData, string>>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof CustomerSignupFormData, string>>>({}); // 유효성 검사 오류 상태
+  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 상태 관리
+  const [isEmailVerified, setIsEmailVerified] = useState(false); // 이메일 인증 완료 여부
+  const [isIdChecked, setIsIdChecked] = useState(false);       // 아이디 중복 확인 여부
 
   const [formData, setFormData] = useState<CustomerSignupFormData>({
     loginId: '',
@@ -71,6 +73,12 @@ export default function CustomerSignUpPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    if (name === 'loginId') {
+      setIsIdChecked(false);
+      setErrors((prev) => ({ ...prev, loginId: undefined }));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -78,15 +86,58 @@ export default function CustomerSignUpPage() {
   };
 
   const handleVerificationSuccess = (token: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      emailVerificationToken: token,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      emailConfirm: undefined,
-    }));
-    console.log('이메일 인증 토큰 저장 완료:', token);
+    setFormData((prev) => ({ ...prev, emailVerificationToken: token }));
+    setErrors((prev) => ({ ...prev, emailConfirm: undefined }));
+    setIsEmailVerified(true); // 인증 완료 상태 설정
+  };
+  
+  const handleCheckDuplicate = async () => {
+    // 1. 아이디 입력 확인
+    if (!formData.loginId) {
+      setErrors((prev) => ({ ...prev, loginId: '아이디를 입력해주세요.' }));
+      return;
+    }
+
+    try {
+      // 2. 백엔드 API 호출 (GET 방식)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/check-id?loginId=${formData.loginId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // 3. 서버 응답 처리
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        // ApplicationResponse 구조: { code: ..., message: ..., data: boolean }
+        const isDuplicate = jsonResponse.data; 
+
+        if (isDuplicate) {
+          setIsIdChecked(false); // 체크 실패 상태로 유지
+          setErrors((prev) => ({ 
+            ...prev, 
+            loginId: '이미 사용 중인 아이디입니다.' 
+          }));
+        } else {
+          // [CASE 2] 사용 가능한 아이디 (data: false)
+          setIsIdChecked(true); 
+          alert('사용 가능한 아이디입니다.');
+          setErrors((prev) => ({ ...prev, loginId: undefined }));
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert(errorData.message || '중복 확인 중 오류가 발생했습니다.');
+        setIsIdChecked(false);
+      }
+    } catch (error) {
+      console.error('중복 확인 통신 오류:', error);
+      alert('서버와 통신 중 오류가 발생했습니다.');
+      setIsIdChecked(false);
+    }
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -171,6 +222,7 @@ export default function CustomerSignUpPage() {
           error={errors.email}
           variant="email"
           placeholder="이메일 주소 입력"
+          buttonDisabled={isEmailVerified}
         />
 
         {/* 2. 인증번호 입력창 */}
@@ -185,6 +237,7 @@ export default function CustomerSignUpPage() {
           placeholder="인증번호"
           emailForVerification={formData.email}
           onVerifySuccess={handleVerificationSuccess}
+          buttonDisabled={isEmailVerified}
         />
 
         <div className="flex flex-col items-start w-full mt-10 gap-2.5">
@@ -195,6 +248,9 @@ export default function CustomerSignUpPage() {
             value={formData.loginId}
             onChange={handleInputChange}
             error={errors.loginId}
+            variant="idCheck"
+            onCheckDuplicate={handleCheckDuplicate}
+            buttonDisabled={isIdChecked}
           />
           <SignupInput
             label="비밀번호"
@@ -231,7 +287,7 @@ export default function CustomerSignUpPage() {
             type="submit"
             // 5. Tailwind CSS 변수 문법 수정 (안전한 방식)
             className="bg-[var(--main-color)] text-white rounded-[40px] w-[316px] h-[50px] font-bold disabled:opacity-50 transition-opacity"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isEmailVerified || !isIdChecked}
           >
             {isSubmitting ? '처리 중...' : '가입하기'}
           </button>
