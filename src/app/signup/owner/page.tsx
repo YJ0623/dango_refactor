@@ -6,7 +6,7 @@ import BackButton from '@/components/BackButton'
 import SignupInput, {
   type OwnerSignupFormData,
 } from '@/components/SignupInput'
-import { AddressModal } from '@/components/AddressModal'
+import AddressModal from '@/components/AddressModal'
 
 export default function OwnerSignupPage() {
   const router = useRouter()
