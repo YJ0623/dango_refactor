@@ -1,5 +1,6 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BackButton from '@/components/BackButton';
 import { useEffect } from 'react';
@@ -59,7 +60,7 @@ export default function FindCustomerIdConfirm() {
       {/* 구분선 */}
       <div className="w-screen h-px mt-3 bg-gray-200" />
 
-      <div className="flex flex-row w-full h-[100px] items-center gap-4">
+      <div className="flex flex-row w-full h-[100px] items-center">
         <div className="flex items-center justify-center w-1/2">
           {loginId || '아이디 정보 없음'}
         </div>
