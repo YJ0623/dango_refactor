@@ -402,7 +402,7 @@ const StampSection = () => {
   if (stampCards.length === 0) {
     return (
       <div className="bg-white rounded-lg p-4 h-48 flex items-center justify-center text-gray-400">
-        진행 중인 스탬프가 없습니다.
+        진행 중인 스탬프가 없습니다. <br /> 카페를 방문해서 스탬프를 적립해보세요!
       </div>
     );
   }

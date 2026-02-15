@@ -635,7 +635,7 @@ export default function MapPage() {
                   <div
                     key={store.id}
                     className="flex items-center gap-3 py-3 border-b border-gray-100 cursor-pointer active:bg-gray-50 transition-colors"
-                    onClick={() => router.push(`/store/${store.id}`)}
+                    onClick={() => router.push(`/store/info/${store.id}`)}
                   >
                     {/* 매장 이미지 */}
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
