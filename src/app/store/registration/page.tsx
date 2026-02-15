@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import UserBottomBar from '@/components/UserBottomBar';
 import BackButton from '@/components/BackButton';
+import { Suspense } from 'react';
 
 // API 기본 주소
 const apiUri = process.env.NEXT_PUBLIC_API_URL;
@@ -36,7 +37,7 @@ interface StampRegistrationResponse {
   maxCount: number;
 }
 
-export default function StampRegistration4() {
+function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -359,4 +360,12 @@ export default function StampRegistration4() {
       <UserBottomBar />
     </div>
   );
+};
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div></div>}>
+      <PageContent />
+    </Suspense>
+  )
 };

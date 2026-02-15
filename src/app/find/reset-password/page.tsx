@@ -4,8 +4,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BackButton from '@/components/BackButton';
+import { Suspense } from 'react';
 
-export default function ResetPassword() {
+function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -139,3 +140,11 @@ export default function ResetPassword() {
     </div>
   );
 };
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div></div>}>
+      <PageContent />
+    </Suspense>
+  );
+}

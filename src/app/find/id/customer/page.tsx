@@ -4,8 +4,9 @@ export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BackButton from '@/components/BackButton';
 import { useEffect } from 'react';
+import { Suspense } from 'react';
 
-export default function FindCustomerIdConfirm() {
+function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const loginId = searchParams.get('loginId');
@@ -89,3 +90,11 @@ export default function FindCustomerIdConfirm() {
     </div>
   );
 };
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div></div>}>
+      <PageContent />
+    </Suspense>
+  );
+}
