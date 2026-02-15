@@ -140,7 +140,7 @@ export default function HomePage() {
               className="object-cover"
             />
           </div>
-          <p className="cursor-pointer text-[10px]">카카오톡으로 로그인</p>
+          <p className="cursor-pointer text-[10px]">카카오톡으로 이용하기</p>
         </div>
       </div>
 

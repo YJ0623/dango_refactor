@@ -15,10 +15,7 @@ interface StoreInfoHomeProps {
 export default function StoreInfoHome({ storeDetail }: StoreInfoHomeProps) {
   const router = useRouter();
 
-  // ----------------------------------------------------------------
-  // 스탬프 등록 로직 (StampRegistration4에서 가져옴)
-  // ----------------------------------------------------------------
-const handleRegisterStamp = async () => {
+  const handleRegisterStamp = async () => {
     // 1. 매장 정보나 ID가 없으면 실행 불가
     if (!storeDetail || !storeDetail.storeId) {
       alert('매장 정보를 불러올 수 없습니다.');

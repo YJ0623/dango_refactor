@@ -176,12 +176,12 @@ const StampPage = () => {
         <h1 className="text-xl font-bold text-gray-800">My Stamp</h1>
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => router.push('/stampregistration1')}
+            onClick={() => router.push('/user/stamp/registration')}
             className="p-1"
           >
             <Image src='/assets/plus.svg' alt="Plus" width={24} height={24} className="object-contain" />
           </button>
-          <button onClick={() => router.push('/stampsetting')} className="p-1">
+          <button onClick={() => router.push('/user/stamp/setting')} className="p-1">
             <Image src='/assets/threedots.svg' alt="Settings" width={24} height={24} />
           </button>
         </div>
