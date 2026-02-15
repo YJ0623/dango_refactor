@@ -85,7 +85,7 @@ export default function CustomerConfirmPage() {
       }
 
       alert('프로필 저장이 완료되었습니다!');
-      router.push('/stamp'); 
+      router.push('/user/stamp'); 
 
     } catch (error: any) {
       console.error(error);
