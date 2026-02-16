@@ -11,6 +11,7 @@ import {
   fetchStoreName,
   fetchTotals,
   fetchGenderStats,
+  fetchTodayReward,
 } from '@/lib/api/stats';
 
 // 날짜 포맷팅 유틸 (YYYY-MM-DD)
@@ -70,6 +71,12 @@ export default function Dashboard() {
     enabled: !!storeName,
   });
 
+  const { data: todayRewardCount = 0 } = useQuery({
+    queryKey: ['dashboard-reward', storeName],
+    queryFn: () => fetchTodayReward(storeName!),
+    enabled: !!storeName,
+  });
+
   // ----------------------------------------------------
   // [Variable] 데이터 가공 (수정된 부분)
   // ----------------------------------------------------
@@ -125,7 +132,7 @@ export default function Dashboard() {
           <div className="w-1/2 h-[140px] bg-(--fill-color1) text-(--fill-color7) rounded-[20px] p-4 flex flex-col justify-between shadow-sm">
             <p className="font-semibold text-[14px] text-gray-800">오늘 교환된 리워드</p>
             <div className="flex flex-row self-end items-center text-center">
-              <p className="text-[34px] font-semibold text-(--fill-color7)">0</p>
+              <p className="text-[34px] font-semibold text-(--fill-color7)">{todayRewardCount}</p>
               <p className="text-[14px] font-medium mx-1 text-[#5B5B5B]">건</p>
             </div>
           </div>

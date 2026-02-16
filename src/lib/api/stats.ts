@@ -117,3 +117,15 @@ export const fetchGenderStats = async (storeName: string, baseDate: string) => {
   });
   return response.data;
 };
+
+export const fetchTodayReward = async (storeName: string) => {
+  const apiUri = process.env.NEXT_PUBLIC_API_URL;
+  const { data } = await axios.get(
+    `${apiUri}/v1/manager/reward`,
+    {
+      params: { storeName },
+    }
+  );
+  
+  return data.data; 
+};
