@@ -3,170 +3,54 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import StampSection from '@/components/StampSection';
-import { type StampData } from '@/components/StampCard';
 import UserBottomBar from '@/components/UserBottomBar';
 import Window from '@/components/Window';
-import fetchUserQr from '@/lib/api/user/UserQR';
-
-const apiUri = process.env.NEXT_PUBLIC_API_URL;
-
-// --- 타입 정의 ---
-interface EventData {
-  eventType: string;
-  buttonDescription: string;
-  startDate: string;
-  endDate: string;
-  buttonImageUrl: string;
-}
-
-interface EventApiResponse {
-  timestamp: string;
-  code: number;
-  message: string;
-  data: EventData[];
-}
-
-// [중요] 계정 정보 타입
-interface AccountApiResponse {
-  code: number;
-  message: string;
-  data: {
-    email: string; // QR 생성 요청용
-    loginId: string; // 화면 표시용 (아이디)
-    // userId: number; // (필요하다면 추가, 여기선 QR생성에 email만 씀)
-    joinedAt: string;
-  };
-}
+import { useAuthStore } from '@/store/useAuthStore';
+import { useStampStore } from '@/store/useStampStore';
 
 const StampPage = () => {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
-  // QR 모달 상태
-  const [showQrModal, setShowQrModal] = useState(false);
-  const [qrImage, setQrImage] = useState<string>('');
-  const [isLoadingQr, setIsLoadingQr] = useState(false);
+  // zustand stores
+  const { accessToken, initializeFromStorage } = useAuthStore();
+  const {
+    userEmail,
+    userLoginId,
+    stamps,
+    isLoadingStamps,
+    events,
+    qrImage,
+    isLoadingQr,
+    showQrModal,
+    fetchAccountInfo,
+    fetchStamps,
+    fetchEvents,
+    handleQrGenerate,
+    setShowQrModal,
+  } = useStampStore();
 
-  // 유저 정보 상태
-  const [userEmail, setUserEmail] = useState<string>('');
-  const [userLoginId, setUserLoginId] = useState<string>('');
-
-  const [stamps, setStamps] = useState<StampData[]>([]);
-  const [isLoadingStamps, setIsLoadingStamps] = useState(false);
-  const [events, setEvents] = useState<EventData[]>([]);
-
-  // 1. 유저 정보 가져오기
+  // 앱 진입 시 토큰 복원
   useEffect(() => {
-    const fetchAccountInfo = async () => {
-      try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) return;
+    initializeFromStorage();
+  }, [initializeFromStorage]);
 
-        const response = await axios.get<AccountApiResponse>(
-          `${apiUri}/v1/mypage/account`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const resData = response.data;
-        if (resData.code === 0 || resData.code === 200 || resData.data) {
-          console.log('유저 정보:', resData.data);
-          setUserEmail(resData.data.email); // API용
-          setUserLoginId(resData.data.loginId); // UI용
-        }
-      } catch (error) {
-        console.error('계정 정보 조회 실패:', error);
-      }
-    };
-    fetchAccountInfo();
-  }, []);
-
-  // 2. 스탬프 데이터 (기존 유지)
+  // 토큰이 있으면 데이터 로드
   useEffect(() => {
-    const fetchStamps = async () => {
-      setIsLoadingStamps(true);
-      try {
-        const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${apiUri}/v1/users/stamps`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setStamps(data);
-        } else {
-          setStamps([]);
-        }
-      } catch (error) {
-        setStamps([]);
-      } finally {
-        setIsLoadingStamps(false);
-      }
-    };
-    fetchStamps();
-  }, []);
+    if (!accessToken) return;
+    fetchAccountInfo(accessToken);
+    fetchStamps(accessToken);
+    fetchEvents(accessToken);
+  }, [accessToken, fetchAccountInfo, fetchStamps, fetchEvents]);
 
-  // 3. 이벤트 데이터 (기존 유지)
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const token = localStorage.getItem('accessToken');
-        const response = await fetch(`${apiUri}/v1/events/board`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
-          },
-        });
-        if (response.ok) {
-          const json = await response.json();
-          if (
-            json.code === 0 ||
-            json.code === 200 ||
-            json.message.includes('정상')
-          ) {
-            setEvents(json.data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchEvents();
-  }, []);
-
-  // 4. QR 버튼 클릭
-  const handleQrClick = async () => {
+  // QR 버튼 클릭
+  const handleQrClick = () => {
     if (!userEmail) {
       alert('유저 정보를 불러오는 중입니다. 잠시 후 시도해주세요.');
       return;
     }
-
-    setShowQrModal(true);
-    setIsLoadingQr(true);
-    setQrImage('');
-
-    try {
-      // ✅ [핵심] 이메일로 QR 생성 요청
-      const res = await fetchUserQr(userEmail);
-
-      if (res.code === 100 || res.code === 200) {
-        setQrImage(res.data); // base64 이미지 설정
-      } else {
-        alert(res.message || 'QR 생성 실패');
-        setShowQrModal(false);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('QR 생성 에러');
-      setShowQrModal(false);
-    } finally {
-      setIsLoadingQr(false);
-    }
+    handleQrGenerate(userEmail);
   };
 
   return (
