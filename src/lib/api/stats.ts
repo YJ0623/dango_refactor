@@ -23,7 +23,6 @@ export interface StatsResponse {
   code: number;
   message: string;
   data: StatsDataDto;
-
 }
 
 // 2. API 호출 함수

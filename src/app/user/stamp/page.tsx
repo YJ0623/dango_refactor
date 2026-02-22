@@ -217,7 +217,7 @@ const StampPage = () => {
             <StampSection />
           </div>
         ) : (
-          <div className="mb-6">
+          <div className="mb-6 min-h-40">
             <Window data={stamps} loading={isLoadingStamps} />
           </div>
         )}
