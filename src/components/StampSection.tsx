@@ -384,7 +384,7 @@ const StampSection = () => {
   // --- UI 렌더링 ---
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg p-4 h-48 flex items-center justify-center text-gray-400 animate-pulse">
+      <div className="bg-white rounded-lg p-4 min-h-[420px] flex items-center justify-center text-gray-400 animate-pulse">
         스탬프 정보를 불러오는 중...
       </div>
     );
@@ -392,7 +392,7 @@ const StampSection = () => {
 
   if (errorMsg) {
     return (
-      <div className="bg-white rounded-lg p-4 h-48 flex flex-col items-center justify-center text-red-400 gap-2">
+      <div className="bg-white rounded-lg p-4 min-h-[420px] flex flex-col items-center justify-center text-red-400 gap-2">
         <p className="text-sm text-center">{errorMsg}</p>
         <p className="text-xs text-gray-400 text-center">로그인 확인 필요</p>
       </div>
@@ -401,7 +401,7 @@ const StampSection = () => {
 
   if (stampCards.length === 0) {
     return (
-      <div className="bg-white rounded-lg p-4 h-48 flex items-center justify-center text-gray-400">
+      <div className="bg-white rounded-lg p-4 min-h-[420px] flex items-center justify-center text-gray-400">
         진행 중인 스탬프가 없습니다. <br /> 카페를 방문해서 스탬프를 적립해보세요!
       </div>
     );
@@ -422,6 +422,7 @@ const StampSection = () => {
             src={currentWallet}
             alt="My Wallet Level"
             className="h-[240px] w-auto object-contain drop-shadow-xl"
+            priority
           />
         </div>
 
