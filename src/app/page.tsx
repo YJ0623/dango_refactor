@@ -56,24 +56,23 @@ export default function HomePage() {
     }
   };
 
-  // 카카오 로그인 핸들러
-  const handleKakaoLogin = async () => {
-    try {
-      const frontendRedirectUri = `${window.location.origin}/oauth/kakao/callback`;
-      const kakaoAuthUrl = await getKakaoAuthUrl(frontendRedirectUri);
+const handleKakaoLogin = () => {
+  try {
+    const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
 
-      if (!kakaoAuthUrl) {
-        throw new Error('카카오 인증 URL이 없습니다.');
-      }
-
-      sessionStorage.setItem('kakaoRedirectUri', frontendRedirectUri);
-      window.location.href = kakaoAuthUrl;
-    } catch (error) {
-      console.error('카카오 로그인 오류:', error);
-      alert('카카오 로그인 연결에 실패했습니다.');
+    if (!REST_API_KEY || !REDIRECT_URI) {
+      throw new Error('카카오 로그인 환경변수가 설정되지 않았습니다.');
     }
-  };
 
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+    window.location.href = kakaoAuthUrl;
+  } catch (error) {
+    console.error('카카오 로그인 연동 에러:', error);
+    alert('카카오 로그인 연결에 실패했습니다.');
+  }
+};
   return (
     <div className="flex flex-col pt-20 items-center min-h-screen bg-white">
       {/* 로고 영역 */}
