@@ -73,6 +73,7 @@ const handleKakaoLogin = () => {
     alert('카카오 로그인 연결에 실패했습니다.');
   }
 };
+
   return (
     <div className="flex flex-col pt-20 items-center min-h-screen bg-white">
       {/* 로고 영역 */}
