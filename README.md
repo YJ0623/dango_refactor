@@ -20,6 +20,18 @@ Dango
 ### 4. 매끄러운 인증/인가 (Auth) 프로세스
 - OAuth 2.0 기반의 카카오 소셜 로그인 연동 및 JWT 토큰 관리를 통해 사용자 경험을 해치지 않는 부드러운 로그인/로그아웃 흐름(Flow) 구축
 
-## 🔧 Refactoring & Collaboration (모바일 웹 최적화)
+## Refactoring & Collaboration (모바일 웹 최적화)
 - **반응형 UI 트러블슈팅:** 기존 1차 개발 당시, 모바일 디바이스 해상도에서 레이아웃이 깨지는 팀원의 코드를 식별
 - **코드 리뷰 및 개선:** CSS Flexbox 및 Grid 구조를 전면 재설계하여, WebView 및 모바일 브라우저 환경에서 어색함 없이 정상적으로 노출되도록 크로스 브라우징 및 반응형 웹 리팩토링 주도
+
+## UI Designs
+
+<img width="390" height="843" alt="회원가입2_수정" src="https://github.com/user-attachments/assets/94196ec4-f40c-4c6b-b695-2403201be5a4" />
+<img width="387" height="840" alt="스크린샷 2026-02-27 오후 1 18 39" src="https://github.com/user-attachments/assets/096db2d6-929e-46ac-8b7c-1b7c1def70c2" />
+<img width="387" height="840" alt="스크린샷 2026-02-27 오후 1 18 31" src="https://github.com/user-attachments/assets/45ee5cea-88a7-4ef0-be4d-1572920394d5" />
+<img width="387" height="840" alt="스크린샷 2026-02-27 오후 1 18 26" src="https://github.com/user-attachments/assets/01269267-c7ee-4b05-a38c-6d8e99342ff0" />
+<img width="387" height="843" alt="스크린샷 2026-02-14 오후 9 22 34" src="https://github.com/user-attachments/assets/aed567fa-5260-4567-94a3-016eda797c4a" />
+<img width="387" height="843" alt="스크린샷 2026-02-11 오후 5 23 22" src="https://github.com/user-attachments/assets/8f3e9b5b-b45b-4a8a-a3fb-cd80a6015bd9" />
+<img width="390" height="843" alt="스크린샷 2026-02-07 오후 7 06 58" src="https://github.com/user-attachments/assets/07f3e268-97fd-4cdc-82d2-f2b28f7eba26" />
+<img width="390" height="843" alt="스크린샷 2026-02-07 오후 7 06 52" src="https://github.com/user-attachments/assets/2793f8fc-3b8c-402e-a15b-84cf79de6394" />
+<img width="390" height="843" alt="메인화면" src="https://github.com/user-attachments/assets/07a87c8a-07d4-4f14-b767-efe0e2bfd064" />
