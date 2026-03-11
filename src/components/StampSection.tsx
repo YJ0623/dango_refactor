@@ -7,6 +7,7 @@ import Wallet2 from '../../public/assets/wallet2.png';
 import Wallet3 from '../../public/assets/wallet3.png';
 import Wallet4 from '../../public/assets/wallet4.png';
 import Wallet5 from '../../public/assets/wallet5.png';
+import { useAuthStore } from '@/store/useAuthStore';
 
 // ==========================================
 // ✅ 1. StampCard 컴포넌트 (UI 표시용)
@@ -241,6 +242,9 @@ const StampCardContent = ({
 );
 
 const StampSection = () => {
+  // --- zustand store ---
+  const { accessToken, initializeFromStorage } = useAuthStore();
+
   // --- 상태 관리 ---
   const [stampCards, setStampCards] = useState<StampCardData[]>([]);
   const [currentWallet, setCurrentWallet] = useState<StaticImageData>(Wallet1);
@@ -252,17 +256,22 @@ const StampSection = () => {
 
   const totalCardsRef = useRef(0);
 
+  // 토큰 복원
+  useEffect(() => {
+    initializeFromStorage();
+  }, [initializeFromStorage]);
+
   // --- 데이터 페칭 ---
   useEffect(() => {
+    if (!accessToken) return;
+
     const fetchData = async () => {
       try {
         setIsLoading(true);
         setErrorMsg(null);
-        const token =
-          localStorage.getItem('accessToken') || localStorage.getItem('token');
         const headers = {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${accessToken}`,
         };
 
         const [stampsRes, dashboardRes] = await Promise.all([
@@ -303,7 +312,7 @@ const StampSection = () => {
     };
 
     fetchData();
-  }, []);
+  }, [accessToken]);
 
   useEffect(() => {
     totalCardsRef.current = stampCards.length;

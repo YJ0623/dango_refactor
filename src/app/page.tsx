@@ -3,20 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { loginUser, getKakaoAuthUrl } from '@/lib/api/auth';
+import { getKakaoAuthUrl } from '@/lib/api/auth';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function HomePage() {
   const router = useRouter();
+  const { login, logout, isLoading, error } = useAuthStore();
   const [loginData, setLoginData] = useState({
     loginId: '',
     password: '',
   });
 
-  // 초기화 로직
+  // 초기화 로직: 로그인 페이지 진입 시 토큰 제거
   useEffect(() => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  }, []);
+    logout();
+  }, [logout]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,12 +32,9 @@ export default function HomePage() {
     e.preventDefault();
 
     try {
-      const result = await loginUser(loginData);
+      const result = await login(loginData);
 
       if (result.accessToken) {
-        localStorage.setItem('accessToken', result.accessToken);
-        localStorage.setItem('refreshToken', result.refreshToken);
-
         // 라우팅 분기 로직
         if (result.userOnboarded) {
           router.push('/user/stamp');
@@ -120,9 +118,10 @@ const handleKakaoLogin = () => {
         />
         <button
           type="submit"
-          className="bg-[var(--main-color)] text-white rounded-[40px] h-[50px] font-bold cursor-pointer hover:opacity-90 transition-opacity"
+          disabled={isLoading}
+          className="bg-[var(--main-color)] text-white rounded-[40px] h-[50px] font-bold cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          로그인
+          {isLoading ? '로그인 중...' : '로그인'}
         </button>
       </form>
 

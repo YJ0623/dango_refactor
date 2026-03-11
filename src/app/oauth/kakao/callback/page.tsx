@@ -3,9 +3,11 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function KakaoCallback() {
   const router = useRouter();
+  const { setTokens } = useAuthStore();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -35,7 +37,7 @@ export default function KakaoCallback() {
         const { accessToken } = json.data;
 
         if (accessToken) {
-          localStorage.setItem('accessToken', accessToken);
+          setTokens(accessToken);
           router.push('/user/stamp');
         } else {
           throw new Error('토큰을 받지 못했습니다.');
@@ -47,7 +49,7 @@ export default function KakaoCallback() {
     };
 
     handleCallback();
-  }, [router]);
+  }, [router, setTokens]);
 
   return (
     <div className="flex justify-center items-center w-full h-screen">
