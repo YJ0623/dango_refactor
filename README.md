@@ -1,6 +1,7 @@
 Dango — 소상공인 카페 스탬프 적립 서비스
 
-지갑에 쌓이던 종이 스탬프 카드를 모바일 웹으로 옮겨, 카페 재방문을 유도하는 서비스입니다. 신촌 SW 창업경진대회 출품작 (2025.10 ~ 2026.02)
+지갑에 쌓이던 종이 스탬프 카드를 모바일 웹으로 옮겨, 카페 재방문을 유도하는 서비스입니다. 
+<br/> 신촌 SW 창업경진대회 출품작 (2025.10 ~ 2026.02)
 
 <p> <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/Zustand-4B3B2A?style=flat-square" /> <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" /> <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" /> <img src="https://img.shields.io/badge/AWS_S3-569A31?style=flat-square&logo=amazons3&logoColor=white" /> </p>
 
