@@ -4,9 +4,9 @@ Dango — 소상공인 카페 스탬프 적립 서비스
 
 <p> <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/Zustand-4B3B2A?style=flat-square" /> <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" /> <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" /> <img src="https://img.shields.io/badge/AWS_S3-569A31?style=flat-square&logo=amazons3&logoColor=white" /> </p>
 
-배포: https://dango-wine.vercel.app 
-1차 개발 저장소: https://github.com/MutsaDemoDay/FrontEnd
-Figma: https://www.figma.com/design/8SRYLupxiDZ27AIssh2RLR/%EB%8D%B0%EB%AA%A8%EB%8D%B0%EC%9D%B4?node-id=0-1&p=f&t=CGsIqkd0K8lshF4a-0
+배포: https://dango-wine.vercel.app <br/>
+1차 개발 저장소: https://github.com/MutsaDemoDay/FrontEnd <br/>
+Figma: https://www.figma.com/design/8SRYLupxiDZ27AIssh2RLR/%EB%8D%B0%EB%AA%A8%EB%8D%B0%EC%9D%B4?node-id=0-1&p=f&t=CGsIqkd0K8lshF4a-0 <br/>
 
 서비스 운영 종료 운영 비용 문제로 백엔드 인프라를 중단하여, 현재 배포본에서는 데이터 연동이 동작하지 않습니다. UI와 라우팅 구조는 그대로 확인하실 수 있습니다.
 
